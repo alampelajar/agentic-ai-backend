@@ -3,7 +3,9 @@ package main
 import (
 	"log"
 	"os"
+	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 
@@ -21,8 +23,32 @@ func main() {
 
 	r := gin.Default()
 
+	// CORS untuk frontend Agentic AI
+	r.Use(cors.New(cors.Config{
+		AllowOrigins: []string{
+			"http://localhost:5173",
+		},
+		AllowMethods: []string{
+			"GET",
+			"POST",
+			"PUT",
+			"PATCH",
+			"DELETE",
+			"OPTIONS",
+		},
+		AllowHeaders: []string{
+			"Origin",
+			"Content-Type",
+			"Accept",
+			"Authorization",
+		},
+		AllowCredentials: true,
+		MaxAge: 12 * time.Hour,
+	}))
+
 	api := r.Group("/api")
 	{
+		// Auth
 		auth := api.Group("/auth")
 		{
 			auth.POST("/register", handlers.Register)
@@ -31,6 +57,7 @@ func main() {
 			auth.POST("/logout", handlers.Logout)
 		}
 
+		// Protected routes
 		protected := api.Group("")
 		protected.Use(middleware.AuthMiddleware())
 		{
