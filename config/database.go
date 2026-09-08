@@ -30,7 +30,10 @@ func ConnectDatabase() {
 
 	DB = db
 
-	err = DB.AutoMigrate(&models.User{})
+	err = DB.AutoMigrate(
+		&models.User{},
+		&models.RefreshToken{},
+	)
 	if err != nil {
 		log.Fatal("Gagal melakukan migration:", err)
 	}

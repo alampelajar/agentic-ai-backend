@@ -9,6 +9,7 @@ import (
 
 	"agentic-ai-backend/config"
 	"agentic-ai-backend/handlers"
+	"agentic-ai-backend/middleware"
 )
 
 func main() {
@@ -22,11 +23,19 @@ func main() {
 
 	api := r.Group("/api")
 	{
-auth := api.Group("/auth")
-{
-	auth.POST("/register", handlers.Register)
-	auth.POST("/login", handlers.Login)
-}
+		auth := api.Group("/auth")
+		{
+			auth.POST("/register", handlers.Register)
+			auth.POST("/login", handlers.Login)
+			auth.POST("/refresh", handlers.Refresh)
+			auth.POST("/logout", handlers.Logout)
+		}
+
+		protected := api.Group("")
+		protected.Use(middleware.AuthMiddleware())
+		{
+			protected.GET("/me", handlers.Me)
+		}
 	}
 
 	port := os.Getenv("PORT")
